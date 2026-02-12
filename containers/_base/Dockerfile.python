@@ -1,0 +1,63 @@
+# Agentropic Base Python Image
+# Used by Python-based hosted projects (GPT Researcher, etc.)
+
+FROM python:3.11-slim
+
+# Install common system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    wget \
+    supervisor \
+    nginx \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user for running project code
+RUN groupadd --gid 1001 appuser && \
+    useradd --uid 1001 --gid 1001 --create-home --shell /bin/bash appuser
+
+# Create standard directories
+RUN mkdir -p /app /var/log/supervisor /etc/supervisor/conf.d && \
+    chown -R appuser:appuser /app
+
+# Default supervisor config that child images can extend
+COPY <<'EOF' /etc/supervisor/supervisord.conf
+[supervisord]
+nodaemon=true
+logfile=/var/log/supervisor/supervisord.log
+pidfile=/var/run/supervisord.pid
+user=root
+
+[include]
+files = /etc/supervisor/conf.d/*.conf
+EOF
+
+# Nginx health check endpoint config
+# Child images should include their own server blocks for the app
+COPY <<'EOF' /etc/nginx/conf.d/health.conf
+server {
+    listen 8080 default_server;
+
+    location /healthz {
+        access_log off;
+        return 200 'ok';
+        add_header Content-Type text/plain;
+    }
+
+    # Child images override this with a proxy_pass to the actual app
+    location / {
+        return 502 'not configured';
+    }
+}
+EOF
+
+# Remove default nginx config to avoid conflicts
+RUN rm -f /etc/nginx/sites-enabled/default
+
+WORKDIR /app
+
+EXPOSE 8080
+
+# Default entrypoint runs supervisor (which manages nginx + app process)
+CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
