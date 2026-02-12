@@ -5,14 +5,18 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Loader2, Square, Clock, AlertTriangle } from "lucide-react";
 
-interface SessionData {
-  id: string;
-  projectName: string;
-  status: "launching" | "running" | "stopped" | "destroyed" | "error";
-  sessionUrl: string | null;
-  startedAt: string;
-  apiBudgetCents: number;
-  apiSpendCents: number;
+interface SessionResponse {
+  session: {
+    id: string;
+    projectId: number;
+    status: "launching" | "running" | "stopped" | "destroyed" | "error";
+    sessionUrl: string | null;
+    startedAt: string;
+    stoppedAt: string | null;
+    apiBudgetCents: number;
+    apiSpendCents: number;
+    flyMachineState: string | null;
+  };
 }
 
 const SESSION_DURATION_MINUTES = 30;
@@ -20,7 +24,9 @@ const SESSION_DURATION_MINUTES = 30;
 export default function SessionPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const [session, setSession] = useState<SessionData | null>(null);
+  const [session, setSession] = useState<SessionResponse["session"] | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [remainingSeconds, setRemainingSeconds] = useState(
@@ -35,13 +41,13 @@ export default function SessionPage() {
       if (!res.ok) {
         throw new Error("Failed to load session");
       }
-      const data: SessionData = await res.json();
-      setSession(data);
+      const data: SessionResponse = await res.json();
+      setSession(data.session);
       setLoading(false);
 
       // Calculate remaining time from startedAt
-      if (data.startedAt) {
-        const started = new Date(data.startedAt).getTime();
+      if (data.session.startedAt) {
+        const started = new Date(data.session.startedAt).getTime();
         const now = Date.now();
         const elapsed = Math.floor((now - started) / 1000);
         const remaining = SESSION_DURATION_MINUTES * 60 - elapsed;
@@ -152,7 +158,7 @@ export default function SessionPage() {
       <div className="flex h-12 shrink-0 items-center justify-between border-b bg-white px-4">
         <div className="flex items-center gap-3">
           <span className="text-sm font-semibold">
-            {session.projectName}
+            Session
           </span>
           {session.status === "launching" && (
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -208,7 +214,7 @@ export default function SessionPage() {
           <iframe
             src={session.sessionUrl}
             className="h-full w-full border-0"
-            title={`${session.projectName} session`}
+            title="Session"
             sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals"
             allow="clipboard-read; clipboard-write"
           />
