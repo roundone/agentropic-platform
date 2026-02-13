@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { projects } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,49 +20,20 @@ import {
   Star,
 } from "lucide-react";
 
-const FEATURED_PROJECTS = [
-  {
-    slug: "dify",
-    name: "Dify",
-    description:
-      "Build AI-powered apps with visual workflows and RAG pipelines",
-    category: "AI App Builder",
-    stars: 60000,
-  },
-  {
-    slug: "gpt-researcher",
-    name: "GPT Researcher",
-    description:
-      "Autonomous AI agent that researches any topic and generates detailed reports",
-    category: "Research Agent",
-    stars: 16000,
-  },
-  {
-    slug: "bolt-new",
-    name: "Bolt.new",
-    description:
-      "AI-powered full-stack web app builder — describe it and watch it build",
-    category: "Coding Agent",
-    stars: 25000,
-  },
-  {
-    slug: "openclaw",
-    name: "OpenClaw",
-    description:
-      "Framework for building autonomous AI agents with tool use and memory",
-    category: "Agent Framework",
-    stars: 8000,
-  },
-];
-
-function formatStars(count: number): string {
+function formatStars(count: number | null): string {
+  if (!count) return "0";
   if (count >= 1000) {
     return `${(count / 1000).toFixed(1)}k`;
   }
   return count.toString();
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const featuredProjects = await db
+    .select()
+    .from(projects)
+    .where(eq(projects.status, "live"))
+    .limit(4);
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -151,14 +125,16 @@ export default function HomePage() {
             </Button>
           </div>
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {FEATURED_PROJECTS.map((project) => (
+            {featuredProjects.map((project) => (
               <Card
                 key={project.slug}
                 className="flex h-full flex-col transition-shadow hover:shadow-md"
               >
                 <CardHeader>
                   <div className="flex items-start justify-between">
-                    <Badge variant="secondary">{project.category}</Badge>
+                    {project.category && (
+                      <Badge variant="secondary">{project.category}</Badge>
+                    )}
                     <span className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Star className="size-3 fill-current" />
                       {formatStars(project.stars)}
