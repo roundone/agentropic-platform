@@ -28,9 +28,9 @@ It's used by thousands of companies to prototype and ship AI features without wr
     category: "AI App Builder",
     language: "Python",
     stars: 60000,
-    imageTag: "agentropic/dify:latest",
-    port: 8080,
-    healthCheckPath: "/healthz",
+    imageTag: "nginx:alpine", // TODO: Replace with agentropic/dify:latest once built
+    port: 80,
+    healthCheckPath: "/",
     status: "live" as const,
   },
   {
@@ -52,9 +52,9 @@ It's like having a research assistant that can digest dozens of sources in minut
     category: "Research Agent",
     language: "Python",
     stars: 16000,
-    imageTag: "agentropic/gpt-researcher:latest",
-    port: 8080,
-    healthCheckPath: "/healthz",
+    imageTag: "nginx:alpine", // TODO: Replace with agentropic/gpt-researcher:latest once built
+    port: 80,
+    healthCheckPath: "/",
     status: "live" as const,
   },
   {
@@ -76,9 +76,9 @@ It's the fastest way to go from an idea to a working web application. Perfect fo
     category: "Coding Agent",
     language: "TypeScript",
     stars: 25000,
-    imageTag: "agentropic/bolt-new:latest",
-    port: 8080,
-    healthCheckPath: "/healthz",
+    imageTag: "nginx:alpine", // TODO: Replace with agentropic/bolt-new:latest once built
+    port: 80,
+    healthCheckPath: "/",
     status: "live" as const,
   },
   {
@@ -100,9 +100,9 @@ It's designed for developers and teams building production AI agent systems, but
     category: "Agent Framework",
     language: "Python",
     stars: 8000,
-    imageTag: "agentropic/openclaw:latest",
-    port: 8080,
-    healthCheckPath: "/healthz",
+    imageTag: "nginx:alpine", // TODO: Replace with agentropic/openclaw:latest once built
+    port: 80,
+    healthCheckPath: "/",
     status: "live" as const,
   },
 ];

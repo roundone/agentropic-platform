@@ -5,6 +5,31 @@
 
 ---
 
+## Session: Feb 13, 2026 (Morning)
+
+### What was done
+1. **Neon DB confirmed working** — schema already pushed (from Feb 12), connection string in `.env` and `.env.local`
+2. **Seed script run successfully** — all 4 projects (Dify, GPT Researcher, Bolt.new, OpenClaw) upserted into Neon
+3. **Landing page wired to DB** — replaced hardcoded `FEATURED_PROJECTS` array with live DB query; `page.tsx` now an async server component
+4. **Verified API endpoint** — `GET /api/projects` returns all 4 projects from Neon
+5. **Verified local dev** — homepage renders projects from DB, all 4 project cards visible
+6. **Created CHANGELOG.md** — this file, for cross-session continuity
+7. **Updated `Agentropic/CLAUDE.md`** — current status now reflects "Phase 1 MVP scaffold deployed"
+
+### What's blocking
+- **fly.io billing** — `flyctl apps create` fails with "We need your payment information." Must add credit card at: `https://fly.io/dashboard/nishant-837/billing`
+
+### What's next (once fly.io billing is resolved)
+1. Create `agentropic-sessions` fly.io app
+2. Test machine creation with `nginx:alpine` (simple smoke test)
+3. Verify full session launch → iframe → stop flow
+4. Build real project Docker images (start with GPT Researcher — simplest Dockerfile)
+5. Deploy to Vercel with `DATABASE_URL` env var set (if not already)
+6. Clerk production mode
+7. Custom domain
+
+---
+
 ## Session: Feb 12, 2026 (Evening)
 
 ### What was built
@@ -71,22 +96,8 @@
 - **Clerk in development mode** — Need to switch to production for real deploys
 
 ### Environment / Credentials
-- Clerk dev keys: configured in `.env` (not committed)
-- fly.io API token: configured (see `.claude/settings.local.json`)
-- Neon: NOT YET SET UP
+- Clerk dev keys: configured in `.env.local` (not committed)
+- fly.io API token: configured in `.env.local`
+- Neon: connected (`DATABASE_URL` in `.env` and `.env.local`), schema pushed, seed run
 - Vercel: deployed under nishie's account
 - GitHub: `roundone/agentropic-platform`
-
----
-
-## What's Next (Phase 1 completion)
-
-Priority order:
-1. **Set up Neon DB** — Create project, get connection string, add to `.env` and Vercel
-2. **Run Drizzle migrations** — Push schema to Neon
-3. **Run seed script** — Populate the 4 projects in DB
-4. **Wire UI to real API** — Projects page should fetch from `/api/projects` instead of hardcoded data
-5. **Build & push Docker images to fly.io** — Get at least one project (e.g., GPT Researcher) running
-6. **Test full session flow** — Click "Try It" → session created → container starts → iframe loads
-7. **Clerk production mode** — Get real API keys
-8. **Custom domain** — Connect `agentropic.com` (if registered) or choose a domain

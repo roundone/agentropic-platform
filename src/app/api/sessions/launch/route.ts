@@ -89,13 +89,13 @@ export async function GET(request: Request) {
     try {
       machine = await createMachine(FLY_APP_NAME, {
         image: project.imageTag ?? "nginx:alpine",
-        port: project.port ?? 3000,
+        port: project.port ?? 80,
         env: {
           AGENTROPIC_PROJECT: project.slug,
         },
         resources: {
-          cpus: 2,
-          memoryMb: 2048,
+          cpus: 1,
+          memoryMb: 256,
         },
       });
     } catch (flyError) {
@@ -110,7 +110,8 @@ export async function GET(request: Request) {
 
     // 6. Insert session record
     const sessionId = crypto.randomUUID();
-    const sessionUrl = `https://${machine.id}.fly.dev`;
+    const routerBase = process.env.FLY_ROUTER_URL ?? "https://agentropic-router.fly.dev";
+    const sessionUrl = `${routerBase}/init/${machine.id}`;
 
     await db.insert(sessions).values({
       id: sessionId,

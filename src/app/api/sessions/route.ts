@@ -120,14 +120,13 @@ export async function POST(request: Request) {
     // ------------------------------------------------------------------
     const machine = await createMachine(FLY_APP_NAME, {
       image: project.imageTag,
-      port: project.port ?? 3000,
+      port: project.port ?? 80,
       env: {
-        // Pass any project-specific env vars here in the future
         AGENTROPIC_PROJECT: project.slug,
       },
       resources: {
-        cpus: 2,
-        memoryMb: 2048,
+        cpus: 1,
+        memoryMb: 256,
       },
     });
 
@@ -135,7 +134,8 @@ export async function POST(request: Request) {
     // 5. Insert session record
     // ------------------------------------------------------------------
     const sessionId = crypto.randomUUID();
-    const sessionUrl = `https://${machine.id}.fly.dev`;
+    const routerBase = process.env.FLY_ROUTER_URL ?? "https://agentropic-router.fly.dev";
+    const sessionUrl = `${routerBase}/init/${machine.id}`;
 
     await db.insert(sessions).values({
       id: sessionId,
