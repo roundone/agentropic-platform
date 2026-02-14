@@ -5,6 +5,47 @@
 
 ---
 
+## Session: Feb 14, 2026
+
+### What was done
+1. **Vercel deployment verified** — After adding `FLY_ROUTER_URL` env var in previous session, confirmed deployment is live and projects API returns all 4 projects from Neon
+2. **Full end-to-end session flow tested and WORKING**:
+   - Created test user via Clerk Backend API (`user_39f4fylVSAYPaJaoqo48HtFbULB`)
+   - Signed in using Clerk sign-in token (bypassed email verification in dev mode)
+   - Inserted test user into Neon DB manually (webhook not configured yet)
+   - Clicked "Launch Session" on Dify project detail page
+   - fly.io machine created successfully (nginx:alpine placeholder)
+   - Router cookie flow worked: `/init/{machineId}` → cookie → fly-replay → nginx in iframe
+   - Session page displayed with countdown timer (30 min) and nginx welcome page in iframe
+   - "Stop Session" button destroyed the machine and redirected to dashboard
+   - Dashboard correctly showed: "1 of 3 free sessions used", session history with "Destroyed" status
+
+### What's working (full stack)
+- **Landing page** → Projects from Neon DB
+- **Clerk auth** → Sign-in/sign-up with dev mode
+- **Project detail** → "Launch Session" button
+- **Session launch** → Creates fly.io machine → inserts session → redirects to session page
+- **Session page** → iframe with router cookie flow → fly-replay to machine → content renders
+- **Stop session** → Destroys machine → redirects to dashboard
+- **Dashboard** → Shows plan, active sessions, history, trial usage tracking
+
+### What's NOT yet done
+- **Clerk webhook** — Not configured; test user was inserted manually. Need to set up svix webhook secret and configure endpoint in Clerk dashboard
+- **Real project Docker images** — All 4 projects still use `nginx:alpine` placeholder. Need to build actual Dify, GPT Researcher, Bolt.new, OpenClaw images
+- **Clerk production mode** — Still in development mode
+- **Custom domain** — Running on `agentropic-platform.vercel.app`
+- **Terms/Privacy pages** — Return 404 (links in footer)
+- **LiteLLM proxy** — Not deployed yet (needed for AI API budget enforcement)
+- **Billing/Stripe** — Not implemented
+
+### Environment
+- **Vercel**: 6 env vars set (Clerk keys, DATABASE_URL, FLY_API_TOKEN, FLY_APP_NAME, FLY_ROUTER_URL)
+- **fly.io**: `agentropic-sessions` app (machines), `agentropic-router` app (2 machines, HA)
+- **Neon**: Schema pushed, 4 projects seeded, 1 test user
+- **Git**: 4 commits on main, all pushed to `github.com/roundone/agentropic-platform`
+
+---
+
 ## Session: Feb 13, 2026 (Morning)
 
 ### What was done
